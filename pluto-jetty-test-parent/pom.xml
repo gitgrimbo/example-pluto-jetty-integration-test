@@ -1,0 +1,207 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <groupId>grimbo.portlet.test</groupId>
+    <artifactId>pluto-jetty-test-parent</artifactId>
+    <version>0.0.1-SNAPSHOT</version>
+    <packaging>pom</packaging>
+    <properties>
+        <project.build.sourceEncoding>Cp1252</project.build.sourceEncoding>
+        <jetty.version>7.6.4.v20120524</jetty.version>
+        <pluto.version>2.0.3</pluto.version>
+        <pluto.home>C:/java/pluto-2.0.3</pluto.home>
+        <pluto.webapp>${pluto.home}/webapps/pluto</pluto.webapp>
+        <jetty.integration.xml>${basedir}/src/main/etc/jetty.xml</jetty.integration.xml>
+    </properties>
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>junit</groupId>
+                <artifactId>junit</artifactId>
+                <version>4.10</version>
+                <scope>test</scope>
+            </dependency>
+            <dependency>
+                <groupId>net.sourceforge.jwebunit</groupId>
+                <artifactId>jwebunit-htmlunit-plugin</artifactId>
+                <version>3.0</version>
+                <scope>test</scope>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
+    <build>
+        <pluginManagement>
+            <plugins>
+                <!--
+                Why do we do the file copies in "package" phase?
+                Because trying at "pre-integration-test" phase seems to lead to Jetty starting before the copies,
+                which causes Jetty startup to fail.
+                -->
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-resources-plugin</artifactId>
+                    <version>2.5</version>
+                    <executions>
+                        <!--
+                        This execution copies an existing pluto webapp to target, where we can begin to modify it.
+                        We don't overwrite by default. Run a "clean" to start afresh.
+                        -->
+                        <execution>
+                            <id>copy-pluto-webapp</id>
+                            <phase>package</phase>
+                            <goals>
+                                <goal>copy-resources</goal>
+                            </goals>
+                            <configuration>
+                                <outputDirectory>${basedir}/target/pluto</outputDirectory>
+                                <resources>
+                                    <resource>
+                                        <directory>${pluto.webapp}</directory>
+                                        <filtering>false</filtering>
+                                    </resource>
+                                </resources>
+                            </configuration>
+                        </execution>
+                        <!--
+                        This execution copies the file /src/main/etc/pluto/WEB-INF/pluto-portal-driver-config.xml to pluto.
+                        This file needs to be provided by the pom inheriting from this parent.
+                        This will allow a test project to provide pluto's page setup.
+                        We overwrite here, to make sure we're using our file and not the pluto default.
+                        -->
+                        <execution>
+                            <id>copy-local-pluto-portal-driver-config</id>
+                            <phase>package</phase>
+                            <goals>
+                                <goal>copy-resources</goal>
+                            </goals>
+                            <configuration>
+                                <outputDirectory>${basedir}/target/pluto/WEB-INF</outputDirectory>
+                                <overwrite>true</overwrite>
+                                <resources>
+                                    <resource>
+                                        <directory>${basedir}/src/main/etc/pluto/WEB-INF</directory>
+                                        <includes>
+                                            <include>pluto-portal-driver-config.xml</include>
+                                        </includes>
+                                        <filtering>false</filtering>
+                                    </resource>
+                                </resources>
+                            </configuration>
+                        </execution>
+                    </executions>
+                </plugin>
+                <plugin>
+                    <groupId>org.mortbay.jetty</groupId>
+                    <artifactId>jetty-maven-plugin</artifactId>
+                    <version>${jetty.version}</version>
+                    <dependencies>
+                        <!--
+                        These are runtime requirements of pluto 2.x.
+                        The full list for the Tomcat bundle may look something like the following:
+C:\java\pluto-2.0.3>dir *.jar /s/b
+C:\java\pluto-2.0.3\bin\bootstrap.jar
+C:\java\pluto-2.0.3\bin\commons-daemon.jar
+C:\java\pluto-2.0.3\bin\tomcat-juli.jar
+C:\java\pluto-2.0.3\lib\annotations-api.jar
+C:\java\pluto-2.0.3\lib\catalina-ant.jar
+C:\java\pluto-2.0.3\lib\catalina-ha.jar
+C:\java\pluto-2.0.3\lib\catalina-tribes.jar
+C:\java\pluto-2.0.3\lib\catalina.jar
+C:\java\pluto-2.0.3\lib\ccpp-1.0.jar
+C:\java\pluto-2.0.3\lib\ecj-3.7.jar
+C:\java\pluto-2.0.3\lib\el-api.jar
+C:\java\pluto-2.0.3\lib\jasper-el.jar
+C:\java\pluto-2.0.3\lib\jasper.jar
+C:\java\pluto-2.0.3\lib\jsp-api.jar
+C:\java\pluto-2.0.3\lib\pluto-container-api-2.0.3.jar
+C:\java\pluto-2.0.3\lib\pluto-container-driver-api-2.0.3.jar
+C:\java\pluto-2.0.3\lib\pluto-taglib-2.0.3.jar
+C:\java\pluto-2.0.3\lib\portlet-api_2.0_spec-1.0.jar
+C:\java\pluto-2.0.3\lib\servlet-api.jar
+C:\java\pluto-2.0.3\lib\tomcat-api.jar
+C:\java\pluto-2.0.3\lib\tomcat-coyote.jar
+C:\java\pluto-2.0.3\lib\tomcat-dbcp.jar
+C:\java\pluto-2.0.3\lib\tomcat-i18n-es.jar
+C:\java\pluto-2.0.3\lib\tomcat-i18n-fr.jar
+C:\java\pluto-2.0.3\lib\tomcat-i18n-ja.jar
+C:\java\pluto-2.0.3\lib\tomcat-jdbc.jar
+C:\java\pluto-2.0.3\lib\tomcat-util.jar
+                        But we only need a subset, and obv don't require the Tomcat jars for Jetty.
+                        Basically, we need the pluto jars that aren't in the pluto webapp, and ccpp.jar.
+                        -->
+                        <dependency>
+                            <groupId>javax.portlet</groupId>
+                            <artifactId>portlet-api</artifactId>
+                            <version>2.0</version>
+                        </dependency>
+                        <dependency>
+                            <groupId>org.apache.portals.pluto</groupId>
+                            <artifactId>pluto-container-api</artifactId>
+                            <version>${pluto.version}</version>
+                        </dependency>
+                        <dependency>
+                            <groupId>org.apache.portals.pluto</groupId>
+                            <artifactId>pluto-container-driver-api</artifactId>
+                            <version>${pluto.version}</version>
+                        </dependency>
+                        <dependency>
+                            <groupId>org.apache.portals.pluto</groupId>
+                            <artifactId>pluto-taglib</artifactId>
+                            <version>${pluto.version}</version>
+                        </dependency>
+                        <dependency>
+                            <groupId>javax.ccpp</groupId>
+                            <artifactId>ccpp</artifactId>
+                            <version>1.0</version>
+                        </dependency>
+                    </dependencies>
+                    <configuration>
+                        <!--
+                        This jetty.xml file, to be provided by pom inheriting from this parent,
+                        should define the pluto webapp which needs the be loaded,
+                        and all other portlet apps that are part of this test.
+                        A sample is provided in this project.
+                        -->
+                        <jettyXml>${jetty.integration.xml}</jettyXml>
+                    </configuration>
+                    <executions>
+                        <!--
+                        http://wiki.eclipse.org/Jetty/Feature/Jetty_Maven_Plugin#jetty:start__:__Starting_jetty_without_first_executing_the_build_up_to_.22test-compile.22_phase
+                        -->
+                        <execution>
+                            <id>start-jetty</id>
+                            <phase>pre-integration-test</phase>
+                            <goals>
+                                <goal>start</goal>
+                            </goals>
+                            <configuration>
+                                <scanIntervalSeconds>0</scanIntervalSeconds>
+                                <daemon>true</daemon>
+                            </configuration>
+                        </execution>
+                        <execution>
+                            <id>stop-jetty</id>
+                            <phase>post-integration-test</phase>
+                            <goals>
+                                <goal>stop</goal>
+                            </goals>
+                        </execution>
+                    </executions>
+                </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-failsafe-plugin</artifactId>
+                    <version>2.12</version>
+                    <executions>
+                        <execution>
+                            <goals>
+                                <goal>integration-test</goal>
+                                <goal>verify</goal>
+                            </goals>
+                        </execution>
+                    </executions>
+                </plugin>
+            </plugins>
+        </pluginManagement>
+    </build>
+</project>

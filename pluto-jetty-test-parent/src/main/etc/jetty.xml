@@ -1,0 +1,136 @@
+<?xml version="1.0"?>
+<!DOCTYPE Configure PUBLIC "-//Jetty//Configure//EN" "http://www.eclipse.org/jetty/configure.dtd">
+
+<!-- =============================================================== -->
+<!-- Configure the Jetty Server                                      -->
+<!--                                                                 -->
+<!-- Documentation of this file format can be found at:              -->
+<!-- http://wiki.eclipse.org/Jetty/Reference/jetty.xml_syntax        -->
+<!--                                                                 -->
+<!-- Additional configuration files are available in $JETTY_HOME/etc -->
+<!-- and can be mixed in.  For example:                              -->
+<!--   java -jar start.jar etc/jetty-ssl.xml                         -->
+<!--                                                                 -->
+<!-- See start.ini file for the default configuraton files           -->
+<!-- =============================================================== -->
+
+
+<Configure id="Server" class="org.eclipse.jetty.server.Server">
+
+    <!--
+    The default location for pluto.home is "./target/pluto".
+    Here we declare the pluto webapp that has been copied by Maven plugins provided in "pluto-jetty-test-parent".
+    -->
+    <New id="pluto.home" class="java.lang.String"><Arg><SystemProperty name="pluto.home" default="./target/pluto"/></Arg></New>
+
+    <!-- =========================================================== -->
+    <!-- Server Thread Pool                                          -->
+    <!-- =========================================================== -->
+    <Set name="ThreadPool">
+      <!-- Default queued blocking threadpool -->
+        <New class="org.eclipse.jetty.util.thread.QueuedThreadPool">
+            <Set name="minThreads">10</Set>
+            <Set name="maxThreads">200</Set>
+            <Set name="detailedDump">false</Set>
+        </New>
+    </Set>
+
+    <!-- =========================================================== -->
+    <!-- Set connectors                                              -->
+    <!-- =========================================================== -->
+
+    <Call name="addConnector">
+        <Arg>
+            <New class="org.eclipse.jetty.server.nio.SelectChannelConnector">
+                <Set name="host">
+                    <Property name="jetty.host" />
+                </Set>
+                <Set name="port">
+                    <Property name="jetty.port" default="8080" />
+                </Set>
+                <Set name="maxIdleTime">300000</Set>
+                <Set name="Acceptors">2</Set>
+                <Set name="statsOn">false</Set>
+                <Set name="confidentialPort">8443</Set>
+                <Set name="lowResourcesConnections">20000</Set>
+                <Set name="lowResourcesMaxIdleTime">5000</Set>
+            </New>
+        </Arg>
+    </Call>
+
+    <!-- =========================================================== -->
+    <!-- Set handler Collection Structure                            --> 
+    <!-- =========================================================== -->
+    <Set name="handler">
+        <New id="Handlers" class="org.eclipse.jetty.server.handler.HandlerCollection">
+            <Set name="handlers">
+                <Array type="org.eclipse.jetty.server.Handler">
+                    <Item>
+                        <New id="Contexts" class="org.eclipse.jetty.server.handler.ContextHandlerCollection" />
+                    </Item>
+                    <Item>
+                        <New id="DefaultHandler" class="org.eclipse.jetty.server.handler.DefaultHandler" />
+                    </Item>
+                </Array>
+            </Set>
+        </New>
+    </Set>
+
+    <Ref id="Contexts">
+        <!--
+        Here we declare the pluto webapp.
+        -->
+        <Call name="addHandler">
+            <Arg>
+                <New class="org.eclipse.jetty.webapp.WebAppContext">
+                    <Set name="contextPath">/pluto</Set>
+                    <Set name="war"><Ref id="pluto.home"></Ref></Set>
+                    <!--
+                    Need a loginService to satisfy Pluto's authentication.
+                    -->
+                    <Get name="securityHandler">
+                        <Set name="loginService">
+                            <New class="org.eclipse.jetty.security.HashLoginService">
+                                <Set name="name">pluto</Set>
+                                <Set name="config">src/main/etc/realm.properties</Set>
+                            </New>
+                        </Set>
+                    </Get>
+                </New>
+            </Arg>
+        </Call>
+        <!--
+        Here we declare the other portlet apps we need.
+        -->
+        <Call name="addHandler">
+            <Arg>
+                <New class="org.eclipse.jetty.webapp.WebAppContext">
+                    <Set name="contextPath">/test1</Set>
+                    <Set name="war">d:/dev/workspaces/3.7/temp/test-portlet-1/target/test-portlet-1-0.0.1-SNAPSHOT</Set>
+                </New>
+            </Arg>
+        </Call>
+        <!--
+        Here we declare the other portlet apps we need.
+        -->
+        <Call name="addHandler">
+            <Arg>
+                <New class="org.eclipse.jetty.webapp.WebAppContext">
+                    <Set name="contextPath">/test2</Set>
+                    <Set name="war">d:/dev/workspaces/3.7/temp/test-portlet-2/target/test-portlet-2-0.0.1-SNAPSHOT</Set>
+                </New>
+            </Arg>
+        </Call>
+    </Ref>
+
+    <!-- =========================================================== -->
+    <!-- extra options                                               -->
+    <!-- =========================================================== -->
+    <Set name="stopAtShutdown">true</Set>
+    <Set name="sendServerVersion">true</Set>
+    <Set name="sendDateHeader">true</Set>
+    <Set name="gracefulShutdown">1000</Set>
+    <Set name="dumpAfterStart">false</Set>
+    <Set name="dumpBeforeStop">false</Set>
+
+</Configure>
