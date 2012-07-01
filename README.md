@@ -8,11 +8,12 @@ test-portlet-1 and test-portlet-2
 
 These are *very* simple portlet web applications. They contain basically the exact same portlet, but under two different classnames for easier identification.
 
-<table border=1 cellspacing=0 cellpadding=4>
-<tr><th>App</th><th>Portlet class</th><th>Portlet name</th></tr>
-<tr><td>test-portlet-1</td><td>grimbo.portlet.test1.TestPortlet</td><td>TestPortlet1</td></tr>
-<tr><td>test-portlet-2</td><td>grimbo.portlet.test2.TestPortlet</td><td>TestPortlet2</td></tr>
-</table>
+```
+App             |  Portlet class                     |  Portlet name
+------------------------------------------------------------------
+test-portlet-1  |  grimbo.portlet.test1.TestPortlet  |  TestPortlet1
+test-portlet-2  |  grimbo.portlet.test2.TestPortlet  |  TestPortlet2
+```
 
 pluto-jetty-test-parent
 ---
