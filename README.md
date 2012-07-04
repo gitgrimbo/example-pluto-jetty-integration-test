@@ -8,11 +8,12 @@ test-portlet-1 and test-portlet-2
 
 These are *very* simple portlet web applications. They contain basically the exact same portlet, but under two different classnames for easier identification.
 
-<table border=1 cellspacing=0 cellpadding=4>
-<tr><th>App</th><th>Portlet class</th><th>Portlet name</th></tr>
-<tr><td>test-portlet-1</td><td>grimbo.portlet.test1.TestPortlet</td><td>TestPortlet1</td></tr>
-<tr><td>test-portlet-2</td><td>grimbo.portlet.test2.TestPortlet</td><td>TestPortlet2</td></tr>
-</table>
+```
+App             |  Portlet class                     |  Portlet name
+------------------------------------------------------------------
+test-portlet-1  |  grimbo.portlet.test1.TestPortlet  |  TestPortlet1
+test-portlet-2  |  grimbo.portlet.test2.TestPortlet  |  TestPortlet2
+```
 
 pluto-jetty-test-parent
 ---
@@ -27,7 +28,7 @@ The basic idea is that an integration test will have these steps:
 
 1. Use the `jetty-maven-plugin` plugin to start Jetty in the `pre-integration-test` phase.
 
-1. Jetty will be pointed to a project-local copy of `jetty.xml` and `realm.properties` which will allow us to aggregate together the webapps that we need for the integration tests. So the copy of the Pluto webapp will be declared here, along with any other webapps that are required for the integration tests.
+1. Jetty will be pointed to a project-local copy of `jetty.xml` and `realm.properties` which will allow us to aggregate together the webapps that we need for the integration tests. So the copy of the Pluto webapp will be declared here, along with any other webapps that are required for the integration tests. `realm.properties` is required to define the "pluto" user/password, and also the "pluto" security realm that Pluto uses to authenticate requests.
 
 1. The Maven Jetty plugin will be started with the same Pluto server dependencies that are required in the [Pluto-Tomcat][ExamplePlutoDownloadUrl] bundle ([Pluto download page][PlutoDownload]). I.e. for Tomcat, these jars are located in `%PLUTO_HOME%\lib\`.
 
