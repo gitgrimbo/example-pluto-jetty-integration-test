@@ -45,15 +45,8 @@ So the copy of the Pluto webapp will be declared here, along with any other weba
 
 Current versions used by the project are:
 
-    <properties>
-        <project.build.sourceEncoding>Cp1252</project.build.sourceEncoding>
-        <jetty.version>7.6.4.v20120524</jetty.version>
-        <pluto.version>2.0.3</pluto.version>
-        <pluto.home>C:/java/pluto-2.0.3</pluto.home>
-        <pluto.webapp>${pluto.home}/webapps/pluto</pluto.webapp>
-        <jetty.integration.xml>${basedir}/src/main/etc/jetty.xml</jetty.integration.xml>
-    </properties>
-
+    <jetty.version>7.6.4.v20120524</jetty.version>
+    <pluto.version>2.0.3</pluto.version>
 
 example-integration-test
 ---
