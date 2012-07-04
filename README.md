@@ -26,8 +26,6 @@ The basic idea is that an integration test will have these steps:
 
 1. Copy a project-local copy of `pluto-portal-driver-config.xml` into the copied Pluto webapp. This lets us create our own pages, and place the right portlets on them for the integration test.
 
-1. Use the maven-dependency-plugin to unpack the webapps required for testing into "target". From here we can run a simple ModifyWebXml class using the `org.codehaus.mojo` exec plugin to add the PlutoInvoker servlet entries into web.xml. This is required for integration with the Pluto portlet container.
-
 1. Use the `jetty-maven-plugin` plugin to start Jetty in the `pre-integration-test` phase.
 
 1. Jetty will be pointed to a project-local copy of `jetty.xml` and `realm.properties`, which will allow us to aggregate together the webapps that we need for the integration tests.
@@ -48,10 +46,22 @@ Current versions used by the project are:
     <jetty.version>7.6.4.v20120524</jetty.version>
     <pluto.version>2.0.3</pluto.version>
 
+dummy-pluto-plugin
+---
+
+Provides a simple `RewriteWebXml` class to add PlutoInvoker servlet entries for each portlet defined in portlet.xml.
+
 example-integration-test
 ---
 
 This project uses the `pluto-jetty-test-parent` pom and demonstrates a simple integration test.
+
+Extra steps are:
+
+1. Use the `maven-dependency-plugin` to unpack the webapps required for testing into "target".
+
+1. Using the `org.codehaus.mojo.maven-exec-plugin` plugin, run the `RewriteWebXml` class (provided by the dummy-pluto-plugin project).
+This will add the PlutoInvoker servlet entries into web.xml, which are required for integration with the Pluto portlet container.
 
 [Jetty]: http://jetty.codehaus.org/jetty/
 [Pluto]: http://portals.apache.org/pluto/v20/getting-started.html
