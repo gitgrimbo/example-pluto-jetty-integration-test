@@ -3,24 +3,4 @@
 
 <web-app>
     <display-name>TestPortlet2</display-name>
-
-    <description>Automated generated Application Wrapper</description>
-
-    <servlet>
-        <servlet-name>TestPortlet2</servlet-name>
-        <display-name>TestPortlet2</display-name>
-        <description>Generated Portlet Wrapper</description>
-        <servlet-class>org.apache.pluto.container.driver.PortletServlet</servlet-class>
-        <init-param>
-            <param-name>portlet-name</param-name>
-            <param-value>TestPortlet2</param-value>
-        </init-param>
-        <load-on-startup>1</load-on-startup>
-    </servlet>
-
-    <servlet-mapping>
-        <servlet-name>TestPortlet2</servlet-name>
-        <url-pattern>/PlutoInvoker/TestPortlet2</url-pattern>
-    </servlet-mapping>
-
 </web-app>
