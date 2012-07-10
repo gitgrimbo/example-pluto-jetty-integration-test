@@ -35,7 +35,7 @@ So the copy of the Pluto webapp will be declared here, along with any other weba
 
 1. Use the `maven-failsafe-plugin` plugin to run the integration tests.
 
-1. The provided integration test is called `grimbo.portlet.test.PortletITCase`. This adheres to the Failsafe integration test naming convention, whereby classes called xxxITCase are treated as integration tests.
+1. The provided integration test is called `grimbo.portlet.itest.PortletITCase`. This adheres to the Failsafe integration test naming convention, whereby classes called xxxITCase are treated as integration tests.
 
 1. [JWebUnit] is used to code the integration tests.
 
