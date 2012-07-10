@@ -6,11 +6,9 @@
     <version>0.0.1-SNAPSHOT</version>
     <packaging>pom</packaging>
     <properties>
-        <project.build.sourceEncoding>Cp1252</project.build.sourceEncoding>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <jetty.version>7.6.4.v20120524</jetty.version>
         <pluto.version>2.0.3</pluto.version>
-        <pluto.home>C:/java/pluto-2.0.3</pluto.home>
-        <pluto.webapp>${pluto.home}/webapps/pluto</pluto.webapp>
         <jetty.integration.xml>${basedir}/src/main/etc/jetty.xml</jetty.integration.xml>
     </properties>
     <dependencyManagement>
@@ -32,6 +30,36 @@
     <build>
         <pluginManagement>
             <plugins>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-dependency-plugin</artifactId>
+                    <version>2.4</version>
+                    <!--
+                    This execution copies the pluto webapp to target, where we can begin to modify it.
+                    We don't overwrite by default. Run a "clean" to start afresh.
+                    -->
+                    <executions>
+                        <execution>
+                            <id>copy-pluto-webapp</id>
+                            <phase>package</phase>
+                            <goals>
+                                <goal>unpack</goal>
+                            </goals>
+                            <configuration>
+                                <artifactItems>
+                                    <artifactItem>
+                                        <groupId>org.apache.portals.pluto</groupId>
+                                        <artifactId>pluto-portal</artifactId>
+                                        <version>${pluto.version}</version>
+                                        <type>war</type>
+                                        <overWrite>false</overWrite>
+                                        <outputDirectory>${basedir}/target/pluto</outputDirectory>
+                                    </artifactItem>
+                                </artifactItems>
+                            </configuration>
+                        </execution>
+                    </executions>
+                </plugin>
                 <!--
                 Why do we do the file copies in "package" phase?
                 Because trying at "pre-integration-test" phase seems to lead to Jetty starting before the copies,
@@ -43,33 +71,13 @@
                     <version>2.5</version>
                     <executions>
                         <!--
-                        This execution copies an existing pluto webapp to target, where we can begin to modify it.
-                        We don't overwrite by default. Run a "clean" to start afresh.
-                        -->
-                        <execution>
-                            <id>copy-pluto-webapp</id>
-                            <phase>package</phase>
-                            <goals>
-                                <goal>copy-resources</goal>
-                            </goals>
-                            <configuration>
-                                <outputDirectory>${basedir}/target/pluto</outputDirectory>
-                                <resources>
-                                    <resource>
-                                        <directory>${pluto.webapp}</directory>
-                                        <filtering>false</filtering>
-                                    </resource>
-                                </resources>
-                            </configuration>
-                        </execution>
-                        <!--
                         This execution copies the file /src/main/etc/pluto/WEB-INF/pluto-portal-driver-config.xml to pluto.
                         This file needs to be provided by the pom inheriting from this parent.
                         This will allow a test project to provide pluto's page setup.
                         We overwrite here, to make sure we're using our file and not the pluto default.
                         -->
                         <execution>
-                            <id>copy-local-pluto-portal-driver-config</id>
+                            <id>copy-local-pluto-portal-config</id>
                             <phase>package</phase>
                             <goals>
                                 <goal>copy-resources</goal>
@@ -80,9 +88,6 @@
                                 <resources>
                                     <resource>
                                         <directory>${basedir}/src/main/etc/pluto/WEB-INF</directory>
-                                        <includes>
-                                            <include>pluto-portal-driver-config.xml</include>
-                                        </includes>
                                         <filtering>false</filtering>
                                     </resource>
                                 </resources>
