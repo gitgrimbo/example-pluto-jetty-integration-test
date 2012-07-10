@@ -49,6 +49,12 @@ limitations under the License.
         <page name="Test2" uri="/WEB-INF/themes/pluto-default-theme.jsp">
             <portlet context="/test2" name="TestPortlet2" />
         </page>
+        <page name="Test1-blank-theme" uri="/WEB-INF/themes/blank-theme.jsp">
+            <portlet context="/test1" name="TestPortlet1" />
+        </page>
+        <page name="Test2-blank-theme" uri="/WEB-INF/themes/blank-theme.jsp">
+            <portlet context="/test2" name="TestPortlet2" />
+        </page>
     </render-config>
 
 </pluto-portal-driver>

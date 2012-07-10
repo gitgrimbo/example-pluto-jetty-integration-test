@@ -1,7 +1,9 @@
-package grimbo.portlet.test;
+package grimbo.portlet.itest;
 
 import static net.sourceforge.jwebunit.junit.JWebUnit.*;
 import static org.junit.Assert.*;
+import grimbo.portlet.test.DefaultUrlToFilenameConverter;
+import grimbo.portlet.test.UrlToFilenameConverter;
 
 import java.io.File;
 import java.io.IOException;
@@ -17,6 +19,8 @@ public class PortletITCase {
     String username = "pluto";
     String password = "pluto";
     WebTester tester;
+    UrlToFilenameConverter urlToFilenameConverter = new DefaultUrlToFilenameConverter();
+    boolean save = true;
 
     @Before
     public void before() {
@@ -61,29 +65,58 @@ public class PortletITCase {
     }
 
     @Test
-    public void test1() {
-        gotoPage("/pluto/portal/Test1");
-        // write(new File("test1.html"), tester.getPageSource());
+    public void whenViewingTest1PagePortlet1IsPresent() {
+        gotoPageAndSave("/pluto/portal/Test1");
         String toFind = "this-is-test-portlet-1";
         assertTextPresent(toFind);
     }
 
     @Test
-    public void test2() {
-        gotoPage("/pluto/portal/Test2");
-        // write(new File("test2.html"), tester.getPageSource());
+    public void whenViewingTest2PagePortlet2IsPresent() {
+        gotoPageAndSave("/pluto/portal/Test2");
         String toFind = "this-is-test-portlet-2";
         assertTextPresent(toFind);
     }
 
     @Test
+    public void whenViewingTest1BlankThemePagePortlet1IsPresent() {
+        gotoPageAndSave("/pluto/portal/Test1-blank-theme");
+        String toFind = "this-is-test-portlet-1";
+        assertEquals("Only source on the page is portlet source", toFind, getPageSource());
+    }
+
+    @Test
+    public void whenViewingTest2BlankThemePagePortlet2IsPresent() {
+        gotoPageAndSave("/pluto/portal/Test2-blank-theme");
+        String toFind = "this-is-test-portlet-2";
+        assertEquals("Only source on the page is portlet source", toFind, getPageSource());
+    }
+
+    @Test
     public void test3() {
         // There is no Test3 page, so we expect an error
-        gotoPage("/pluto/portal/Test3");
+        gotoPageAndSave("/pluto/portal/Test3");
         String src = tester.getPageSource();
         // write(new File("test3.html"), src);
         String toFind = "this-is-test-portlet-1";
         assertTrue(toFind + " should not be found", -1 == src.indexOf(toFind));
+    }
+
+    private void gotoPageAndSave(String url) {
+        gotoPage(url);
+
+        if (!save) {
+            return;
+        }
+
+        try {
+            String filename = urlToFilenameConverter.convert(url);
+            String src = getPageSource();
+            write(new File(".", filename), src);
+        } catch (Exception e) {
+            // Don't let save stop the tests.
+            e.printStackTrace();
+        }
     }
 
     private void write(File f, String s) {
